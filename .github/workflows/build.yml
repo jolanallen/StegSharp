@@ -1,0 +1,31 @@
+name: Build Check
+
+# Sécurité : On limite les permissions au strict minimum (lecture du code uniquement)
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        include-prerelease: true
+
+    - name: Restore dependencies
+      run: dotnet restore SteganoApp.slnx
+
+    - name: Build project
+      run: dotnet build SteganoApp.slnx --configuration Release --no-restore
