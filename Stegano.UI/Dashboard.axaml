@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Stegano.UI.Dashboard">
+             
+    
+            <TabControl Margin="10">
+                
+
+                <!-- Section Encode -->
+                <TabItem Header="Encoder">
+                  <ContentControl x:Name="EncoderAffichage" />
+                </TabItem>
+
+                <!-- Section Decode -->
+                <TabItem Header="Décoder">
+                    <ContentControl x:Name="DecoderAffichage" />
+                </TabItem>
+            </TabControl>
+
+</UserControl>
+
+
+
+
+

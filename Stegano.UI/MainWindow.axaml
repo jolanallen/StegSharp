@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Stegano.UI.MainWindow"
+        Title="Stegsharp" Width="1200" Height="800">
+        
+    
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Import" Click="OnImportClick"/>
+                <MenuItem Header="_Export" Click="OnExportClick"/>
+            </MenuItem>
+            <MenuItem Header="_About" Click="OnAboutClick"/>
+        </Menu>
+
+        <StackPanel DockPanel.Dock="Top" Margin="0" Spacing="0" HorizontalAlignment="Center">
+            <TextBlock Text="StegSharp" FontSize="20" Foreground="BlueViolet" FontWeight="Bold" HorizontalAlignment="Center" FontStyle="Italic"/>
+            <TextBlock Text="1.0.0" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
+        </StackPanel>
+        
+        
+        <ContentControl x:Name="ZoneAffichage" />
+        
+    </DockPanel>
+
+</Window>

@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Stegano.UI.About">
+    
+    <StackPanel Margin="40" Spacing="20" HorizontalAlignment="Center" MaxWidth="600">
+        <TextBlock Text="À propos de StegSharp" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
+        
+        <TextBlock TextWrapping="Wrap" FontSize="16" TextAlignment="Center">
+            Cet outil de stéganographie permet de cacher des informations textuelles à l'intérieur d'images numériques. 
+            Développé avec Avalonia et C#, il offre une interface moderne pour manipuler vos fichiers en toute discrétion.
+        </TextBlock>
+
+        <TextBlock Text="Version 1.0.0" HorizontalAlignment="Center" Foreground="Gray"/>
+
+        <Button Content="Retour au Dashboard" 
+                Click="OnBackClick" 
+                HorizontalAlignment="Center" 
+                Padding="20,10"
+                Margin="0,40,0,0"/>
+    </StackPanel>
+</UserControl>

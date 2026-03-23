@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Stegano.Core/Stegano.Core.csproj" />
+  <Project Path="Stegano.UI/Stegano.UI.csproj" />
+</Solution>
