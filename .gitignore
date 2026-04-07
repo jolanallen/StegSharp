@@ -2,9 +2,9 @@
 # https://github.com/github/gitignore/blob/main/dotnet.gitignore
 
 ### .NET Core
-bin/
-obj/
-out/
+**/bin/
+**/obj/
+**/out/
 [Bb]in/
 [Oo]bj/
 

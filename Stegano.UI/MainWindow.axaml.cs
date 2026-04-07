@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System;
 using Avalonia.Platform.Storage;
 using Avalonia.Media.Imaging;
-
+using Stegano.UI.Utils;
 namespace Stegano.UI;
 
 public partial class MainWindow : Window
@@ -31,12 +31,13 @@ public partial class MainWindow : Window
     {
 
         var topLevel = TopLevel.GetTopLevel(this);
+        
         // Start async operation to open the dialog.
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Open Image File",
             AllowMultiple = false,
-            FileTypeFilter= [new FilePickerFileType("Image Files") ]
+            FileTypeFilter= new[] {FileTypeFilterImageAll.ImageAll}
         });
         if (files.Count != 1)
         {
@@ -48,11 +49,14 @@ public partial class MainWindow : Window
         if(dashboard.EncoderAffichage.Content != null)
         {   
             var afficher = dashboard.EncoderAffichage.Content as Encoder;
+            Console.WriteLine($"Importing image: {files[0].Path.AbsolutePath}");
+            afficher.imagePath = files[0].Path.AbsolutePath;
             afficher.EncodeImagePreview.Source = new Bitmap(files[0].Path.AbsolutePath);
         }
         if(dashboard.DecoderAffichage.Content != null)
         {   
             var afficher = dashboard.DecoderAffichage.Content as Decoder;
+            afficher.imagePath = files[0].Path.AbsolutePath;
             afficher.DecodeImagePreview.Source = new Bitmap(files[0].Path.AbsolutePath);
         }
 
