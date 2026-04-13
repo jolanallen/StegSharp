@@ -8,7 +8,7 @@ on:
     tags:
     - 'v[0-9]*.[0-9]*.[0-9]*'      # Déclenche sur les tags de version (ex: v1.0.0)
 
-# FIX 3: Force Node 24 to silence the Node 20 deprecation warnings
+# Force Node 24 pour masquer les avertissements de dépréciation de Node 20
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -44,9 +44,9 @@ jobs:
     - name: Run tests
       run: dotnet test SteganoApp.slnx --configuration Release --no-restore --verbosity normal
 
-    # FIX 1 & 2: Target the specific .csproj instead of the .slnx, and allow it to restore the RID-specific packages
+    # NOUVEAU : Cible le projet principal et génère un fichier unique autonome
     - name: Publish application
-      run: dotnet publish Stegano.UI/Stegano.UI.csproj --configuration Release -o ./publish/${{ matrix.target }} -r ${{ matrix.target }}
+      run: dotnet publish Stegano.UI/Stegano.UI.csproj --configuration Release -o ./publish/${{ matrix.target }} -r ${{ matrix.target }} --self-contained true /p:PublishSingleFile=true
 
     - name: Create release archives
       shell: bash
@@ -87,3 +87,4 @@ jobs:
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
