@@ -1,105 +1,41 @@
-# SteganoApp
+# StegSharp
 
-A modern steganography application for hiding and extracting secret messages within digital media files.
+StegSharp est une application de bureau multiplateforme (Windows, Linux) développée en C# avec le framework .NET 10. Elle permet de dissimuler des messages textuels secrets au sein d'images numériques en exploitant la méthode de stéganographie LSB (Least Significant Bit). 
 
-## Overview
+Ce dépôt contient le code source de l'application, réalisé dans le cadre d'un projet étudiant.
 
-SteganoApp provides a straightforward interface to embed confidential information into images and retrieve hidden messages without detection. Built with C# and .NET, the application ensures secure data concealment with minimal file quality degradation.
+## Fonctionnalités principales
 
-## Features
+- Encodage stéganographique : Insertion d'un texte dans les pixels d'une image sans altération visuelle perceptible.
+- Décodage : Extraction d'un message préalablement dissimulé dans une image.
+- Validation des capacités : Calcul en temps réel de la taille maximale du message qu'une image peut contenir.
+- Architecture modulaire : Séparation stricte des responsabilités entre la logique métier et l'interface utilisateur.
+- Journalisation (Logging) : Suivi des événements et gestion des erreurs via Serilog (fichiers tournants et console).
 
-- Hide text messages in image files
-- Extract embedded messages from carrier images
-- Support for multiple image formats (PNG, BMP, JPEG)
-- Minimal visual quality loss
-- Cross-platform compatibility (Windows, Linux, macOS)
-- Command-line and GUI interfaces
+## Architecture du projet
 
-## Requirements
+La solution (`SteganoApp.slnx`) est divisée en deux sous-projets distincts afin de respecter les principes de la "Clean Architecture" :
 
-- .NET 10.0 or later
-- Windows, Linux, or macOS
+1. Stegano.Core
+Bibliothèque de classes contenant le cœur de l'application. Elle est indépendante de toute technologie d'affichage.
+- `Services/` : Logique d'encodage, de décodage et manipulation LSB (`LsbSteganographyService`).
+- `Repositories/` : Abstraction de l'accès aux fichiers (chargement et sauvegarde des images en mémoire).
+- `DTOs/` : Objets de transfert de données assurant la communication avec l'interface.
 
-## Installation
+2. Stegano.UI
+Projet exécutable gérant l'interface graphique.
+- Développé avec le framework Avalonia UI pour garantir une compatibilité native sous Windows et Linux.
+- Implémente le pattern MVVM (Model-View-ViewModel) / Code-Behind pour l'interaction avec le `Stegano.Core`.
 
-### From Source
+## Prérequis et Installation
 
+### Environnement de développement
+Pour compiler et exécuter le projet depuis les sources, vous devez installer :
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+
+### Compilation
+
+Clonez le dépôt et naviguez dans le dossier racine :
 ```bash
-git clone https://github.com/yourusername/SteganoApp.git
-cd SteganoApp
-dotnet restore SteganoApp.slnx
-dotnet build SteganoApp.slnx --configuration Release
-```
-
-### From Release
-
-Download the latest pre-built binary from the [Releases page](https://github.com/yourusername/SteganoApp/releases).
-
-## Usage
-
-### Command Line
-
-```bash
-# Hide a message
-stegano encode --image input.png --message "Secret text" --output output.png
-
-# Extract a message
-stegano decode --image output.png --output message.txt
-```
-
-### API
-
-```csharp
-using Stegano.Core;
-
-var encoder = new SteganographyEncoder();
-encoder.HideMessage("input.png", "My secret", "output.png");
-
-var decoder = new SteganographyDecoder();
-var result = decoder.ExtractMessage("output.png");
-
-if (result.Succeeded)
-    Console.WriteLine(result.Message);
-```
-
-## Architecture
-
-- **Stegano.Core** - Core steganography algorithms
-- **Stegano.CLI** - Command-line interface
-- **Stegano.UI** - Graphical user interface (WPF/WinForms)
-- **Stegano.Tests** - Unit and integration tests
-
-## Technical Details
-
-The application uses LSB (Least Significant Bit) steganography to embed data within image pixels, ensuring imperceptible changes to the carrier image.
-
-## Building and Testing
-
-```bash
-# Build release
-dotnet build SteganoApp.slnx --configuration Release
-
-# Run tests
-dotnet test SteganoApp.slnx --configuration Release
-
-# Publish for specific platform
-dotnet publish SteganoApp.slnx --configuration Release -r win-x64 -o ./publish
-```
-
-## CI/CD
-
-Automated builds and releases are configured via GitHub Actions:
-- **build.yml** - Runs on every push and pull request
-- **Release.yml** - Creates release artifacts for tagged versions (v*.*.*)
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Contributing
-
-Contributions are welcome. Please ensure all tests pass before submitting pull requests.
-
-## Support
-
-For issues and feature requests, please use the GitHub Issues page.
+git clone [https://github.com/jolanallen/StegSharp.git](https://github.com/jolanallen/StegSharp.git)
+cd StegSharp
