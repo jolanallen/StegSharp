@@ -1,0 +1,79 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+    - 'v[0-9]*.[0-9]*.[0-9]*'      # Déclenche sur les tags de version (ex: v1.0.0)
+
+jobs:
+  release:
+    name: Release on ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            suffix: ""
+          - os: windows-latest
+            target: win-x64
+            suffix: .exe
+          - os: macos-latest
+            target: osx-x64
+            suffix: ""
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore SteganoApp.slnx
+
+    - name: Build project
+      run: dotnet build SteganoApp.slnx --configuration Release --no-restore
+
+    - name: Publish application
+      run: dotnet publish SteganoApp.slnx --configuration Release --no-restore -o ./publish/${{ matrix.target }} -r ${{ matrix.target }}
+
+    - name: Create release archives
+      run: |
+        mkdir -p ./releases
+        cd ./publish/${{ matrix.target }}
+        ${{ runner.os == 'Windows' && 'powershell -Command "Compress-Archive -Path * -DestinationPath ../../releases/stegano-${{ matrix.target }}.zip"' || 'tar -czf ../../releases/stegano-${{ matrix.target }}.tar.gz .' }}
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: stegano-${{ matrix.target }}
+        path: ./releases/
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: release
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts-all
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./artifacts-all/**/*
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

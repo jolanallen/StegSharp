@@ -12,10 +12,23 @@ on:
   pull_request:
     branches: [ "master", "main" ]
 
-
+# On utilise une matrice pour construire le binaire  sur plusieurs plateformes
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build on ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            suffix: ""
+          - os: windows-latest
+            target: win-x64
+            suffix: .exe
+          - os: macos-latest
+            target: osx-x64
+            suffix: ""
 
     steps:
     - name: Checkout code
@@ -24,7 +37,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
+        targets: ${{ matrix.target }}
 
     - name: Restore dependencies
       run: dotnet restore SteganoApp.slnx
@@ -42,3 +55,4 @@ jobs:
       with:
         name: stegano-release
         path: ./publish
+
