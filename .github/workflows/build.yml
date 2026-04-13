@@ -7,28 +7,12 @@ permissions:
 on:
   push:
     branches: [ "master", "main" ]
-    tags:
-    - 'v[0-9]*.[0-9]*.[0-9]*'      # Déclenche sur les tags de version (ex: v1.0.0)
   pull_request:
     branches: [ "master", "main" ]
 
-# On utilise une matrice pour construire le binaire  sur plusieurs plateformes
 jobs:
   build:
-    name: Build on ${{ matrix.target }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: linux-x64
-            suffix: ""
-          - os: windows-latest
-            target: win-x64
-            suffix: .exe
-          - os: macos-latest
-            target: osx-x64
-            suffix: ""
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -37,22 +21,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        targets: ${{ matrix.target }}
+        dotnet-version: '10.0.x'
 
     - name: Restore dependencies
       run: dotnet restore SteganoApp.slnx
 
     - name: Build project
       run: dotnet build SteganoApp.slnx --configuration Release --no-restore
-
-    - name: Release build (only on tags)
-      if: startsWith(github.ref, 'refs/tags/')
-      run: dotnet publish SteganoApp.slnx --configuration Release --no-restore -o ./publish
-
-    - name: Upload build artifacts
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: actions/upload-artifact@v4
-      with:
-        name: stegano-release
-        path: ./publish
-
