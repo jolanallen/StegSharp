@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Serilog;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
@@ -22,6 +23,7 @@ public sealed class ImageMapper
         int width = image.Width;
         int height = image.Height;
         byte[] pixels = new byte[width * height * 4];
+        Log.Debug("Image chargée : {Width}x{Height} pixels | Format source : {SourceExtension}", width, height, sourceExtension);
 
         int rowSize = width * 4;
         image.ProcessPixelRows(accessor =>
@@ -33,7 +35,7 @@ public sealed class ImageMapper
                 rowBytes.CopyTo(pixels.AsSpan(y * rowSize, rowSize));
             }        
         });
-        
+        Log.Debug("Pixels extraits de l'image. Taille des données : {PixelDataSize} octets", pixels.Length);
 
         return new MappedImage
         {
@@ -51,6 +53,7 @@ public sealed class ImageMapper
         CancellationToken cancellationToken = default)
     {
         using var image = new Image<Rgba32>(mapped.Width, mapped.Height);
+        Log.Debug("Création de l'image de sortie : {Width}x{Height} pixels | Format de sortie : {OutputExtension}", mapped.Width, mapped.Height, outputExtension);
 
         int rowSize = mapped.Width * 4;
         image.ProcessPixelRows(accessor =>
@@ -62,13 +65,16 @@ public sealed class ImageMapper
                 mapped.PixelData.AsSpan(y * rowSize, rowSize).CopyTo(rowBytes);
             }        
         });
+        Log.Debug("Pixels écrits dans l'image de sortie. Taille des données : {PixelDataSize} octets", mapped.PixelData.Length);
 
         IImageEncoder encoder = GetEncoder(outputExtension);
         await image.SaveAsync(destination, encoder, cancellationToken);
+        Log.Information("Image de sortie enregistrée avec succès. Format : {OutputExtension}", outputExtension);
     }
 
     private static IImageEncoder GetEncoder(string? extension)
     {
+        Log.Debug("Sélection de l'encodeur pour l'extension : {Extension}", extension);
         return extension?.ToLowerInvariant() switch
         {
             ".jpg" or ".jpeg" => new JpegEncoder(),
