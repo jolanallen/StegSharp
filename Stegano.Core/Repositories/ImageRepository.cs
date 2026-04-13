@@ -1,3 +1,4 @@
+using Serilog;
 using Stegano.Core.DTOs;
 using Stegano.Core.Services;
 
@@ -26,11 +27,13 @@ public sealed class ImageRepository
         try
         {
             FileStream stream=  File.OpenRead(path);
+            Log.Debug("Fichier ouvert avec succès : {FilePath}", path);
             if(!stream.CanRead)
                 throw new InvalidOperationException("Cannot read from the file", null);
             return stream;
         }catch (Exception)
         {
+            Log.Error("Error occurred while opening the file: {FilePath}", path);
             throw new InvalidOperationException("Error occurred while opening the file", null);
         }
     }
@@ -44,7 +47,11 @@ public sealed class ImageRepository
     public async Task<byte[]> ToPngBytesAsync(MappedImage mappedImage, CancellationToken cancellationToken = default)
     {
         using var memoryStream = new MemoryStream();
+        Log.Debug("Conversion de l'image mappée en bytes PNG. Taille de l'image : {Width}x{Height} pixels", mappedImage.Width, mappedImage.Height);
+        
         await _mapper.WriteToStreamAsync(mappedImage, memoryStream, ".png", cancellationToken);
+        Log.Debug("Image convertie en bytes PNG. Taille des données : {DataSize} octets", memoryStream.Length);
+        
         return memoryStream.ToArray();
     }
 }
