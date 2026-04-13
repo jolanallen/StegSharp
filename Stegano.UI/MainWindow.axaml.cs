@@ -10,11 +10,17 @@ using Avalonia.Media.Imaging;
 using Stegano.UI.Utils;
 namespace Stegano.UI;
 
+using Serilog;
+using Stegano.Core;
+
 public partial class MainWindow : Window
 {
+    public readonly SteganoCore SteganoCore;
     public MainWindow()
     {
         InitializeComponent();
+        SteganoCore = new SteganoCore();  // injection du Logger de Serilog dans SteganoCore
+
         ZoneAffichage.Content = new Dashboard(); 
     }
 
