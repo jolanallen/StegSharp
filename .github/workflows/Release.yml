@@ -21,9 +21,7 @@ jobs:
           - os: windows-latest
             target: win-x64
             suffix: .exe
-          - os: macos-latest
-            target: osx-x64
-            suffix: ""
+          
 
     steps:
     - name: Checkout code
