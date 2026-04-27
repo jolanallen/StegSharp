@@ -38,16 +38,15 @@ jobs:
     - name: Restore
       run: dotnet restore SteganoApp.slnx
 
-    - name: Publish
+    - name: Publish application
       shell: bash
-      # On publie directement dans un dossier spécifique pour chaque binaire
       run: |
         dotnet publish Stegano.UI/Stegano.UI.csproj \
           --configuration Release \
-          -r ${{ matrix.target }} \
+          --runtime ${{ matrix.target }} \
           --self-contained true \
-          /p:PublishSingleFile=true \
-          /p:PublishReadyToRun=true \
+          -p:PublishSingleFile=true \
+          -p:PublishReadyToRun=true \
           -o ./publish_output
 
     - name: Prepare Artifact
