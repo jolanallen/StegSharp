@@ -6,8 +6,8 @@ permissions:
 on:
   push:
     tags:
-      - 'v*' # Plus simple et robuste pour détecter v1.0, v1.1.0, etc.
-  workflow_dispatch: # Permet de tester manuellement sans créer de tag
+      - 'v*'
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -21,10 +21,10 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-x64
-            binary_name: SteganoApp # Nom du binaire sans extension
+            binary_name: StegSharp # Nom du binaire sans extension
           - os: windows-latest
             target: win-x64
-            binary_name: SteganoApp.exe # Nom avec extension
+            binary_name: StegSharp.exe # Nom avec extension
 
     steps:
     - name: Checkout code
@@ -76,7 +76,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: ./final-binaries
-        merge-multiple: true # CRUCIAL : Met tous les fichiers dans le même dossier
+        merge-multiple: true
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
