@@ -52,7 +52,7 @@
                                        TextChanged="OnEncodeDataTextChanged"/>
                           </StackPanel>
 
-                          <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5" CornerRadius="5">
+                          <Border x:Name="DropZone" Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5" CornerRadius="5" DragDrop.AllowDrop="True" Background="Transparent">
                               <Panel>
                                   <TextBlock Text="Aucune image importée"
                                              VerticalAlignment="Center"

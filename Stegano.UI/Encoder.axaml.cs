@@ -14,6 +14,8 @@ using System.IO;
 using Avalonia.Platform.Storage;
 using Stegano.UI.Utils;
 using Stegano.Core.Services;
+using Avalonia.Input;
+using System.Linq;
 
 namespace Stegano.UI;
 
@@ -51,6 +53,10 @@ public partial class Encoder : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
+        DropZone.AddHandler(DragDrop.DragOverEvent, OnDragOver);
+        DropZone.AddHandler(DragDrop.DropEvent, OnDrop);
+        DropZone.AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
+
         // Recompute capacity when image changes
         EncodeImagePreview.PropertyChanged += async (_, e) =>
         {
@@ -58,6 +64,68 @@ public partial class Encoder : UserControl, INotifyPropertyChanged
                 await RecomputeMaxLengthFromCurrentImage();
         };
         _encodeService = new();
+    }
+
+    private void OnDragOver(object? sender, DragEventArgs e)
+    {
+        if (e.Data.Contains(DataFormats.Files) || e.Data.Contains(DataFormats.FileNames))
+        {
+            e.DragEffects = DragDropEffects.Copy;
+            DropZone.BorderBrush = Avalonia.Media.Brushes.LightBlue;
+            DropZone.BorderThickness = new Thickness(2);
+            e.Handled = true;
+        }
+        else
+        {
+            e.DragEffects = DragDropEffects.None;
+        }
+    }
+
+    private void OnDragLeave(object? sender, RoutedEventArgs e)
+    {
+        DropZone.BorderBrush = Avalonia.Media.Brushes.Gray;
+        DropZone.BorderThickness = new Thickness(1);
+    }
+
+    private async void OnDrop(object? sender, DragEventArgs e)
+    {
+        DropZone.BorderBrush = Avalonia.Media.Brushes.Gray;
+        DropZone.BorderThickness = new Thickness(1);
+
+        string? path = null;
+
+        if (e.Data.Contains(DataFormats.Files))
+        {
+            var files = e.Data.GetFiles();
+            if (files != null && files.Any())
+            {
+                path = files.First().Path.AbsolutePath;
+            }
+        }
+        else if (e.Data.Contains(DataFormats.FileNames))
+        {
+            var fileNames = e.Data.GetFileNames();
+            if (fileNames != null && fileNames.Any())
+            {
+                path = fileNames.First();
+            }
+        }
+
+        if (!string.IsNullOrEmpty(path))
+        {
+            imagePath = path;
+            try
+            {
+                EncodeImagePreview.Source = new Bitmap(imagePath);
+                _encodedPreviewBytes = null;
+                StatusMessage = $"Image chargée via drag-drop: {Path.GetFileName(imagePath)}";
+                await RecomputeMaxLengthFromCurrentImage();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Erreur lors du chargement de l'image: {ex.Message}";
+            }
+        }
     }
 
     private async void OnSelectImageClick(object? sender, RoutedEventArgs e)

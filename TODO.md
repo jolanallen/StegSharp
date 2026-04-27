@@ -3,35 +3,45 @@
 ## v1.1.0 (En cours)
 
 ### Critical
-- [ ] Valider fichiers avant chargement (#1) - Deadline: 2026-04-20
-- [ ] Corriger NullReferenceException Dashboard (#2) - Deadline: 2026-04-20
+- [ ] Valider fichiers avant chargement 
+- [ ] Corriger NullReferenceException Dashboard
 
 ### Core
-- [ ] Validation formats d'image (#8) - Deadline: 2026-04-25
-- [ ] Gestion fichiers volumineux (#3) - Deadline: 2026-04-27
-- [ ] Logging Serilog (#4) - Deadline: 2026-05-01
+- [ ] Validation formats d'image
+- [ ] Gestion fichiers volumineux 
+- [ ] Logging Serilog
+
+### UI
+- [ ] Drag and drop des images
+- [ ] lecture de l'animation des GIFs
+
 
 ### Testing
-- [ ] Tests unitaires (80% coverage) (#6) - Deadline: 2026-05-05
+- [ ] Tests unitaires 
 
 ### Documentation
-- [ ] Guide utilisateur (USAGE.md) (#7) - Deadline: 2026-04-30
+- [ ] Guide utilisateur
 
 ---
 
 ## v1.2.0 (Planifié)
 
-- [ ] Multi-threading encode/decode
-- [ ] Drag & drop images
-- [ ] Barre de progression
+
+### Critical
 - [ ] Historique fichiers récents
 
+### Core
+ - [ ] Support de la stéganographie dans les vidéos
+ - [ ] Verification de l'intégrité des données extraites (hash, checksum)
+
+### UI
+- [ ] Théme Clair/Sombre
+
+### Testing
+- [ ] Tests unitaires 
+
+### Documentation
+- [ ] Guide utilisateur
 ---
 
 ## Backlog
-
-- [ ] Support audio (WAV, MP3)
-- [ ] Support vidéo
-- [ ] Chiffrement AES-256
-- [ ] API REST + Web UI
-- [ ] Docker support
