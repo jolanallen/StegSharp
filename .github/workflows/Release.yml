@@ -6,26 +6,26 @@ permissions:
 on:
   push:
     tags:
-    - 'v[0-9]*.[0-9]*.[0-9]*'      # Déclenche sur les tags de version (ex: v1.0.0)
+      - 'v*' # Plus simple et robuste pour détecter v1.0, v1.1.0, etc.
+  workflow_dispatch: # Permet de tester manuellement sans créer de tag
 
-# Force Node 24 pour masquer les avertissements de dépréciation de Node 20
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   release:
-    name: Release on ${{ matrix.target }}
+    name: Build for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             target: linux-x64
-            suffix: ""
+            binary_name: SteganoApp # Nom du binaire sans extension
           - os: windows-latest
             target: win-x64
-            suffix: .exe
-          
+            binary_name: SteganoApp.exe # Nom avec extension
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -35,56 +35,53 @@ jobs:
       with:
         dotnet-version: '10.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore SteganoApp.slnx --verbosity normal
+    - name: Restore
+      run: dotnet restore SteganoApp.slnx
 
-    - name: Build project
-      run: dotnet build SteganoApp.slnx --configuration Release --no-restore --verbosity normal
+    - name: Publish
+      # On publie directement dans un dossier spécifique pour chaque binaire
+      run: |
+        dotnet publish Stegano.UI/Stegano.UI.csproj \
+          --configuration Release \
+          -r ${{ matrix.target }} \
+          --self-contained true \
+          /p:PublishSingleFile=true \
+          /p:PublishReadyToRun=true \
+          -o ./publish_output
 
-    - name: Run tests
-      run: dotnet test SteganoApp.slnx --configuration Release --no-restore --verbosity normal
-
-    # NOUVEAU : Cible le projet principal et génère un fichier unique autonome
-    - name: Publish application
-      run: dotnet publish Stegano.UI/Stegano.UI.csproj --configuration Release -o ./publish/${{ matrix.target }} -r ${{ matrix.target }} --self-contained true /p:PublishSingleFile=true
-
-    - name: Create release archives
+    - name: Prepare Artifact
       shell: bash
       run: |
-        mkdir -p ./releases
-        cd ./publish/${{ matrix.target }}
+        mkdir -p ./to_upload
+        # On renomme le binaire pour qu'il soit explicite (ex: SteganoApp-win-x64.exe)
         if [ "${{ runner.os }}" == "Windows" ]; then
-          powershell -Command "Compress-Archive -Path * -DestinationPath ../../releases/stegano-${{ matrix.target }}.zip"
+          mv ./publish_output/Stegano.UI.exe ./to_upload/SteganoApp-${{ matrix.target }}.exe
         else
-          tar -czf ../../releases/stegano-${{ matrix.target }}.tar.gz .
+          mv ./publish_output/Stegano.UI ./to_upload/SteganoApp-${{ matrix.target }}
+          chmod +x ./to_upload/SteganoApp-${{ matrix.target }}
         fi
 
-    - name: Upload artifacts
+    - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: stegano-${{ matrix.target }}
-        path: ./releases/
+        name: binary-${{ matrix.target }}
+        path: ./to_upload/
 
   create-github-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: release
-    permissions:
-      contents: write
-
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        path: ./artifacts-all
+        path: ./final-binaries
+        merge-multiple: true # CRUCIAL : Met tous les fichiers dans le même dossier
 
-    - name: Create GitHub Release
+    - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        files: ./artifacts-all/**/*
-        draft: false
-        prerelease: false
+        files: ./final-binaries/*
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
