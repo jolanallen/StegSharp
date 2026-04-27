@@ -39,6 +39,7 @@ jobs:
       run: dotnet restore SteganoApp.slnx
 
     - name: Publish
+      shell: bash
       # On publie directement dans un dossier spécifique pour chaque binaire
       run: |
         dotnet publish Stegano.UI/Stegano.UI.csproj \
