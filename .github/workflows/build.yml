@@ -1,18 +1,30 @@
-name: Build Check
+name: Release
 
-# Sécurité : On limite les permissions au strict minimum (lecture du code uniquement)
 permissions:
-  contents: read
+  contents: write
 
 on:
   push:
-    branches: [ "master", "main" ]
-  pull_request:
-    branches: [ "master", "main" ]
+    tags:
+      - 'v*' # Plus simple et robuste pour détecter v1.0, v1.1.0, etc.
+  workflow_dispatch: # Permet de tester manuellement sans créer de tag
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  release:
+    name: Build for ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            binary_name: SteganoApp # Nom du binaire sans extension
+          - os: windows-latest
+            target: win-x64
+            binary_name: SteganoApp.exe # Nom avec extension
 
     steps:
     - name: Checkout code
@@ -23,8 +35,53 @@ jobs:
       with:
         dotnet-version: '10.0.x'
 
-    - name: Restore dependencies
+    - name: Restore
       run: dotnet restore SteganoApp.slnx
 
-    - name: Build project
-      run: dotnet build SteganoApp.slnx --configuration Release --no-restore
+    - name: Publish
+      # On publie directement dans un dossier spécifique pour chaque binaire
+      run: |
+        dotnet publish Stegano.UI/Stegano.UI.csproj \
+          --configuration Release \
+          -r ${{ matrix.target }} \
+          --self-contained true \
+          /p:PublishSingleFile=true \
+          /p:PublishReadyToRun=true \
+          -o ./publish_output
+
+    - name: Prepare Artifact
+      shell: bash
+      run: |
+        mkdir -p ./to_upload
+        # On renomme le binaire pour qu'il soit explicite (ex: SteganoApp-win-x64.exe)
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          mv ./publish_output/Stegano.UI.exe ./to_upload/SteganoApp-${{ matrix.target }}.exe
+        else
+          mv ./publish_output/Stegano.UI ./to_upload/SteganoApp-${{ matrix.target }}
+          chmod +x ./to_upload/SteganoApp-${{ matrix.target }}
+        fi
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-${{ matrix.target }}
+        path: ./to_upload/
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./final-binaries
+        merge-multiple: true # CRUCIAL : Met tous les fichiers dans le même dossier
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./final-binaries/*
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
