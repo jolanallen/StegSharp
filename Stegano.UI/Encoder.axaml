@@ -5,7 +5,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Stegano.UI.Encoder"
              x:Name="Root"
-             xmlns:local="using:Stegano.UI.Converters">
+             xmlns:local="using:Stegano.UI.Converters"
+             xmlns:anim="clr-namespace:AnimatedImage.Avalonia;assembly=AnimatedImage.Avalonia">
 
             <UserControl.Resources>
                 <local:NullToBoolConverter x:Key="NullToBoolConverter"/>
@@ -58,8 +59,10 @@
                                              VerticalAlignment="Center"
                                              HorizontalAlignment="Center"
                                              Foreground="Gray"
-                                             IsVisible="{Binding Source, ElementName=EncodeImagePreview, Converter={StaticResource NullToBoolConverter}}"/>
-                                  <Image x:Name="EncodeImagePreview" Stretch="Uniform"/>
+                                             IsVisible="{Binding !IsImageLoaded, ElementName=Root}"/>
+                                  <Image x:Name="EncodeImagePreview" 
+                                         Stretch="Uniform"
+                                         anim:ImageBehavior.AnimatedSource="{Binding GifSource, ElementName=Root}" />
                               </Panel>
                           </Border>
                       </Grid>

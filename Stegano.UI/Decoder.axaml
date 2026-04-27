@@ -5,7 +5,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Stegano.UI.Decoder"
              x:Name="Root"
-             xmlns:local="using:Stegano.UI.Converters">
+             xmlns:local="using:Stegano.UI.Converters"
+             xmlns:anim="clr-namespace:AnimatedImage.Avalonia;assembly=AnimatedImage.Avalonia">
 
     <UserControl.Resources>
         <local:NullToBoolConverter x:Key="NullToBoolConverter"/>
@@ -44,8 +45,10 @@
             <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="5" CornerRadius="5">
                 <Panel>
                     <TextBlock Text="Aucune image importée"
-                        VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Gray" IsVisible="{Binding Source, ElementName=DecodeImagePreview, Converter={StaticResource NullToBoolConverter}}"/>
-                    <Image x:Name="DecodeImagePreview" Stretch="Uniform"/>
+                        VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Gray" 
+                        IsVisible="{Binding !IsImageLoaded, ElementName=Root}"/>
+                    <Image x:Name="DecodeImagePreview" 
+                           Stretch="Uniform" />
                 </Panel>
             </Border>
         </Grid>

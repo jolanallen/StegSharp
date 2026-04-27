@@ -36,6 +36,30 @@ public partial class Encoder : UserControl, INotifyPropertyChanged
         }
     }
 
+    private string? _gifSource;
+    public string? GifSource
+    {
+        get => _gifSource;
+        private set
+        {
+            if (_gifSource == value) return;
+            _gifSource = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _isImageLoaded;
+    public bool IsImageLoaded
+    {
+        get => _isImageLoaded;
+        private set
+        {
+            if (_isImageLoaded == value) return;
+            _isImageLoaded = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _statusMessage = "Prêt.";
     public string StatusMessage
     {
@@ -83,7 +107,21 @@ public partial class Encoder : UserControl, INotifyPropertyChanged
         }
 
         imagePath = files[0].Path.AbsolutePath;
-        EncodeImagePreview.Source = new Bitmap(imagePath);
+        string extension = Path.GetExtension(imagePath).ToLowerInvariant();
+        bool isGif = extension == ".gif";
+        
+        if (isGif)
+        {
+            GifSource = files[0].Path.ToString();
+            EncodeImagePreview.Source = null;
+        }
+        else
+        {
+            GifSource = null;
+            EncodeImagePreview.Source = new Bitmap(imagePath);
+        }
+
+        IsImageLoaded = true;
         _encodedPreviewBytes = null;
         StatusMessage = $"Image chargée: {Path.GetFileName(imagePath)}";
         await RecomputeMaxLengthFromCurrentImage();
@@ -108,7 +146,11 @@ public partial class Encoder : UserControl, INotifyPropertyChanged
             var result = await _encodeService.EncodePreviewAsync(dto);
             _encodedPreviewBytes = result.PngBytes;
             using var ms = new MemoryStream(result.PngBytes);
+            
+            // On encoding, the result is always a static image (PNG)
+            GifSource = null;
             EncodeImagePreview.Source = new Bitmap(ms);
+            
             StatusMessage = "Encodage terminé. Vous pouvez enregistrer l'image.";
         }
         catch (Exception ex)
@@ -264,4 +306,3 @@ public partial class Encoder : UserControl, INotifyPropertyChanged
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
 }
-

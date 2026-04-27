@@ -34,6 +34,30 @@ public partial class Decoder : UserControl, INotifyPropertyChanged
         }
     }
 
+    private string? _gifSource;
+    public string? GifSource
+    {
+        get => _gifSource;
+        private set
+        {
+            if (_gifSource == value) return;
+            _gifSource = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _isImageLoaded;
+    public bool IsImageLoaded
+    {
+        get => _isImageLoaded;
+        private set
+        {
+            if (_isImageLoaded == value) return;
+            _isImageLoaded = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _statusMessage = "Prêt.";
     public string StatusMessage
     {
@@ -73,7 +97,6 @@ public partial class Decoder : UserControl, INotifyPropertyChanged
     public Decoder()
     {
         InitializeComponent();
-        DataContext = this;
         _decodeService = new();
     }
 
@@ -100,7 +123,21 @@ public partial class Decoder : UserControl, INotifyPropertyChanged
         }
 
         imagePath = files[0].Path.AbsolutePath;
-        DecodeImagePreview.Source = new Bitmap(imagePath);
+        string extension = Path.GetExtension(imagePath).ToLowerInvariant();
+        bool isGif = extension == ".gif";
+
+        if (isGif)
+        {
+            GifSource = files[0].Path.ToString();
+            DecodeImagePreview.Source = null;
+        }
+        else
+        {
+            GifSource = null;
+            DecodeImagePreview.Source = new Bitmap(imagePath);
+        }
+
+        IsImageLoaded = true;
         DecodeResultBox.Text = string.Empty;
         HasNoDecodedMessage = true;
         MessageUsageInfo = "Texte caché: 0 caractère / 0 octet";
