@@ -37,5 +37,6 @@ Pour compiler et exécuter le projet depuis les sources, vous devez installer :
 
 Clonez le dépôt et naviguez dans le dossier racine :
 ```bash
-git clone [https://github.com/jolanallen/StegSharp.git](https://github.com/jolanallen/StegSharp.git)
+git clone https://github.com/jolanallen/StegSharp.git
 cd StegSharp
+```
